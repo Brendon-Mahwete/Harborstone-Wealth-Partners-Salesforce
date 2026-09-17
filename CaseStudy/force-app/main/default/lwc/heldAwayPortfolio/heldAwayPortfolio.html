@@ -1,0 +1,184 @@
+<template>
+    <lightning-card
+        title="Held-Away Accounts Portfolio"
+        icon-name="standard:financial_account"
+    >
+        <div class="slds-card__body slds-card__body_inner">
+
+            <!-- SECTION 1 — REFRESH BUTTON-->
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_medium slds-border_bottom slds-p-bottom_medium">
+                <div class="slds-col slds-no-flex slds-m-left_medium">
+                    <lightning-button
+                        variant="brand"
+                        label="Refresh Held-Away Accounts"
+                        icon-name="utility:refresh"
+                        icon-position="left"
+                        disabled={isRefreshing}
+                        onclick={handleRefresh}
+                    ></lightning-button>
+                </div>
+            </div>
+
+            <!-- Refresh Spinner (covers entire card while running) -->
+            <template if:true={isRefreshing}>
+                <div class="slds-align_absolute-center slds-m-vertical_large">
+                    <lightning-spinner
+                        alternative-text="Refreshing held-away accounts..."
+                        size="medium"
+                    ></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Refresh Success Alert -->
+            <template if:true={refreshSuccess}>
+                <div class="slds-notify slds-notify_alert slds-theme_success slds-m-bottom_medium" role="status">
+                    <lightning-icon
+                        icon-name="utility:success"
+                        alternative-text="Success"
+                        size="x-small"
+                        class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span>{refreshMessage}</span>
+                </div>
+            </template>
+
+            <!-- Refresh Error Alert -->
+            <template if:true={refreshError}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                    <lightning-icon
+                        icon-name="utility:error"
+                        alternative-text="Error"
+                        size="x-small"
+                        class="slds-m-right_x-small"
+                    ></lightning-icon>
+                    <span>{refreshMessage}</span>
+                </div>
+            </template>
+
+
+            <!-- SECTION 2 — PORTFOLIO TABLE-->
+            <template if:true={showPortfolio}>
+
+                <!-- Initial Wire Loading Spinner -->
+                <template if:true={isLoading}>
+                    <div class="slds-align_absolute-center slds-m-vertical_large">
+                        <lightning-spinner
+                            alternative-text="Loading financial accounts..."
+                            size="medium"
+                        ></lightning-spinner>
+                    </div>
+                </template>
+
+                <!-- Wire Error -->
+                <template if:true={hasError}>
+                    <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                        <lightning-icon
+                            icon-name="utility:error"
+                            alternative-text="Error"
+                            size="x-small"
+                            class="slds-m-right_x-small"
+                        ></lightning-icon>
+                        <h2>{errorMessage}</h2>
+                    </div>
+                </template>
+
+                <!-- Portfolio Data -->
+                <template if:true={hasData}>
+
+                    <!-- KPI Tiles -->
+                    <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                        <div class="slds-col">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-title slds-m-bottom_xx-small">Total Assets</p>
+                                <p class="slds-text-heading_medium slds-text-color_success">
+                                    {formattedTotalAssets}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="slds-col">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-title slds-m-bottom_xx-small">Total Liabilities</p>
+                                <p class="slds-text-heading_medium slds-text-color_error">
+                                    {formattedTotalLiabilities}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="slds-col">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-title slds-m-bottom_xx-small">Net Worth</p>
+                                <p class={netWorthClass}>{formattedNetWorth}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assets Table -->
+                    <template if:true={hasAssets}>
+                        <h3 class="slds-text-heading_small slds-m-bottom_x-small">
+                            <lightning-icon
+                                icon-name="utility:trending_up"
+                                size="x-small"
+                                class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Assets ({assetCount})
+                        </h3>
+                        <lightning-datatable
+                            key-field="id"
+                            data={summary.assets}
+                            columns={columns}
+                            hide-checkbox-column
+                            class="slds-m-bottom_medium"
+                        ></lightning-datatable>
+                    </template>
+                    <template if:false={hasAssets}>
+                        <p class="slds-text-body_regular slds-text-color_weak slds-m-bottom_medium">
+                            No asset accounts found for this client.
+                        </p>
+                    </template>
+
+                    <!-- Liabilities Table -->
+                    <template if:true={hasLiabilities}>
+                        <h3 class="slds-text-heading_small slds-m-bottom_x-small">
+                            <lightning-icon
+                                icon-name="utility:trending_down"
+                                size="x-small"
+                                class="slds-m-right_x-small"
+                            ></lightning-icon>
+                            Liabilities ({liabilityCount})
+                        </h3>
+                        <lightning-datatable
+                            key-field="id"
+                            data={summary.liabilities}
+                            columns={columns}
+                            hide-checkbox-column
+                        ></lightning-datatable>
+                    </template>
+                    <template if:false={hasLiabilities}>
+                        <p class="slds-text-body_regular slds-text-color_weak">
+                            No liability accounts found for this client.
+                        </p>
+                    </template>
+
+                </template>
+
+                <!-- Empty State -->
+                <template if:true={isEmpty}>
+                    <div class="slds-align_absolute-center slds-m-vertical_large slds-text-align_center">
+                        <lightning-icon
+                            icon-name="standard:empty"
+                            size="large"
+                            class="slds-m-bottom_small"
+                        ></lightning-icon>
+                        <p class="slds-text-body_regular slds-text-color_weak">
+                            No financial accounts found. Click
+                            <strong>Refresh Held-Away Accounts</strong>
+                            to load data from the external system.
+                        </p>
+                    </div>
+                </template>
+
+            </template>
+            <!-- end showPortfolio -->
+
+        </div>
+    </lightning-card>
+</template>
