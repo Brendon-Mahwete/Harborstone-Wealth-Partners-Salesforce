@@ -1,8 +1,64 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+
+    <!-- Apex Classes -->
     <types>
-        <members>*</members>
+        <members>HeldAwayCalloutController</members>
+        <members>FinancialAccountsSummaryController</members>
+        <members>PricingRefreshQueueable</members>
+        <members>PricingRefreshScheduler</members>
+        <members>HeldAwayCalloutControllerTest</members>
+        <members>FinancialAccountsSummaryControllerTest</members>
+        <members>PricingRefreshQueueableTest</members>
+        <members>PricingRefreshSchedulerTest</members>
+        <name>ApexClass</name>
+    </types>
+
+    <!-- Lightning Web Components -->
+    <types>
+        <members>heldAwayPortfolio</members>
+        <name>LightningComponentBundle</name>
+    </types>
+
+    <!-- Custom Objects -->
+    <types>
+        <members>Asset_Pricing_Log__c</members>
         <name>CustomObject</name>
     </types>
+
+    <!-- Custom Fields -->
+    <types>
+        <!-- Account -->
+        <members>Account.External_Id__c</members>
+        <!-- Financial Account -->
+        <members>FinServ__FinancialAccount__c.External_Id__c</members>
+        <members>FinServ__FinancialAccount__c.Institution_Name__c</members>
+        <!-- Asset Pricing Log -->
+        <members>Asset_Pricing_Log__c.Request_Timestamp__c</members>
+        <members>Asset_Pricing_Log__c.HTTP_Status_Code__c</members>
+        <members>Asset_Pricing_Log__c.Error_Message__c</members>
+        <members>Asset_Pricing_Log__c.Retry_Count__c</members>
+        <members>Asset_Pricing_Log__c.Financial_Holding__c</members>
+        <name>CustomField</name>
+    </types>
+
+    <!-- Named Credential -->
+    <types>
+        <members>Harborstone_Pricing_API</members>
+        <name>NamedCredential</name>
+    </types>
+
+    <!-- External Credential -->
+    <types>
+        <members>Harborstone_Pricing_API</members>
+        <name>ExternalCredential</name>
+    </types>
+
+    <!-- Permission Set -->
+    <types>
+        <members>Harborstone_Pricing_Integration</members>
+        <name>PermissionSet</name>
+    </types>
+
     <version>67.0</version>
 </Package>
